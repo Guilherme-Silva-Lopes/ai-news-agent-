@@ -18,9 +18,6 @@ tasks:
         url: https://github.com/Guilherme-Silva-Lopes/ai-news-agent-
         branch: main
 
-        branch: main
-
-
       - id: research-news
         type: io.kestra.plugin.scripts.python.Commands
         description: Phase 1 - Research News
