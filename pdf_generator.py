@@ -123,6 +123,8 @@ class NewsReportGenerator:
             story (list): List of flowable objects for the PDF.
             content (str): The content to add.
         """
+        import html
+        
         # Split content into paragraphs
         paragraphs = content.split('\n\n')
         
@@ -131,28 +133,29 @@ class NewsReportGenerator:
             if not para:
                 continue
             
+            # Escape HTML entities first to prevent XML parsing errors
+            para_escaped = html.escape(para)
+            
             # Check if it's a heading (starts with # or is all caps and short)
             if para.startswith('#'):
                 # Remove markdown heading symbols
                 heading_text = para.lstrip('#').strip()
-                p = Paragraph(heading_text, self.styles['NewsHeading'])
+                heading_escaped = html.escape(heading_text)
+                p = Paragraph(f"<b>{heading_escaped}</b>", self.styles['NewsHeading'])
                 story.append(p)
             elif para.startswith('**') and para.endswith('**'):
                 # Bold text as heading
                 heading_text = para.strip('*').strip()
-                p = Paragraph(heading_text, self.styles['NewsHeading'])
+                heading_escaped = html.escape(heading_text)
+                p = Paragraph(f"<b>{heading_escaped}</b>", self.styles['NewsHeading'])
                 story.append(p)
             elif len(para) < 100 and para.isupper():
                 # All caps short text as heading
-                p = Paragraph(para, self.styles['NewsHeading'])
+                p = Paragraph(para_escaped, self.styles['NewsHeading'])
                 story.append(p)
             else:
-                # Regular paragraph
-                # Clean up the text and handle basic markdown
-                clean_para = para.replace('**', '<b>').replace('__', '<i>')
-                clean_para = clean_para.replace('*', '•')
-                
-                p = Paragraph(clean_para, self.styles['CustomBody'])
+                # Regular paragraph - just use escaped text
+                p = Paragraph(para_escaped, self.styles['CustomBody'])
                 story.append(p)
             
             story.append(Spacer(1, 0.1 * inch))

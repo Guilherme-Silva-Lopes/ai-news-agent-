@@ -26,3 +26,6 @@ typing-extensions>=4.0.0
 # HTTP Requests (for OAuth2)
 requests>=2.31.0
 google-auth>=2.0.0
+
+# Tavily Search (LangChain 1.0 compatible)
+langchain-tavily>=0.2.0
