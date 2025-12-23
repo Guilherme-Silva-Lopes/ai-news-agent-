@@ -20,7 +20,7 @@ class Config:
     DISCORD_WEBHOOK_URL = os.getenv("DISCORD_WEBHOOK_URL")
     
     # Agent Configuration
-    MODEL_NAME = "gemini-3-flash-preview"
+    MODEL_NAME = "models/gemini-2.5-flash"
     MAX_SEARCH_RESULTS = 10
     
     # Report Configuration
