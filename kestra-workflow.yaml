@@ -1,0 +1,108 @@
+id: daily-ai-news-report
+namespace: ai.news
+
+description: |
+  Daily AI and Automation News Report Agent
+  Executes Monday-Friday at 7:00 AM to research AI news, generate PDF report, and send via email
+
+labels:
+  project: ai-news-agent
+  category: automation
+
+tasks:
+  - id: setup-environment
+    type: io.kestra.plugin.core.log.Log
+    description: Initialize workflow execution
+    message: "🤖 Starting Daily AI News Report generation for {{ execution.startDate | date('yyyy-MM-dd') }}"
+
+  - id: load-credentials
+    type: io.kestra.plugin.core.log.Log
+    description: Loading credentials from KV Store
+    message: "🔐 Loading API credentials from KV Store"
+
+  - id: run-news-agent
+    type: io.kestra.plugin.scripts.python.Commands
+    description: Execute the AI News Agent
+    warningOnStdErr: false
+    containerImage: python:3.11-slim
+    beforeCommands:
+      - pip install --no-cache-dir -r requirements.txt
+    commands:
+      - python main.py
+    env:
+      # Load credentials from Kestra KV Store
+      GOOGLE_API_KEY: "{{ kv('GOOGLE_API_KEY') }}"
+      TAVILY_API_KEY: "{{ kv('TAVILY_API_KEY') }}"
+      GMAIL_USER: "{{ kv('GMAIL_CREDENTIALS').user }}"
+      GMAIL_PASSWORD: "{{ kv('GMAIL_CREDENTIALS').password }}"
+      RECIPIENT_EMAIL: "{{ kv('GMAIL_CREDENTIALS').recipient }}"
+    inputFiles:
+      requirements.txt: |
+        {{ read('requirements.txt') }}
+      config.py: |
+        {{ read('config.py') }}
+      tools.py: |
+        {{ read('tools.py') }}
+      agent.py: |
+        {{ read('agent.py') }}
+      pdf_generator.py: |
+        {{ read('pdf_generator.py') }}
+      email_sender.py: |
+        {{ read('email_sender.py') }}
+      main.py: |
+        {{ read('main.py') }}
+    outputFiles:
+      - "*.pdf"
+      - "*.txt"
+
+  - id: success-notification
+    type: io.kestra.plugin.core.log.Log
+    description: Log successful completion
+    message: "✅ Daily AI News Report completed successfully and sent via email"
+
+  - id: archive-report
+    type: io.kestra.plugin.core.storage.LocalFiles
+    description: Archive generated PDF to Kestra storage
+    inputs:
+      - "*.pdf"
+
+errors:
+  - id: error-handler
+    type: io.kestra.plugin.core.log.Log
+    description: Handle execution errors
+    message: "❌ Error in Daily AI News Report workflow: {{ error.message }}"
+
+  - id: error-notification
+    type: io.kestra.plugin.notifications.slack.SlackIncomingWebhook
+    description: Send error notification (optional - configure if you have Slack)
+    url: "{{ kv('SLACK_WEBHOOK_URL') }}"  # Optional: add to KV Store if using Slack
+    payload: |
+      {
+        "text": "⚠️ AI News Agent Failed",
+        "blocks": [
+          {
+            "type": "section",
+            "text": {
+              "type": "mrkdwn",
+              "text": "*Daily AI News Report Failed*\n\n*Error:* {{ error.message }}\n*Date:* {{ execution.startDate | date('yyyy-MM-dd HH:mm:ss') }}"
+            }
+          }
+        ]
+      }
+    disabled: true  # Enable if you want Slack notifications
+
+triggers:
+  - id: daily-schedule
+    type: io.kestra.plugin.core.trigger.Schedule
+    description: Run Monday to Friday at 7:00 AM
+    cron: "0 7 * * 1-5"
+    timezone: America/Sao_Paulo  # Adjust to your timezone
+    lateMaximumDelay: PT1H  # Allow up to 1 hour delay
+    conditions:
+      - type: io.kestra.plugin.core.condition.DayWeekInCondition
+        dayWeeks:
+          - MONDAY
+          - TUESDAY
+          - WEDNESDAY
+          - THURSDAY
+          - FRIDAY
