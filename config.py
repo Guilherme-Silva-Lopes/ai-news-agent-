@@ -23,6 +23,7 @@ class Config:
     GMAIL_REFRESH_TOKEN = os.getenv("GMAIL_REFRESH_TOKEN")
     
     # Email Addresses
+    SENDER_EMAIL = os.getenv("SENDER_EMAIL")  # Sender's email (from GMAIL_CREDENTIALS.user)
     RECEIVER_EMAIL = os.getenv("RECEIVER_EMAIL")
     
     # Agent Configuration
@@ -43,6 +44,7 @@ class Config:
         required_common = {
             "GOOGLE_API_KEY": cls.GOOGLE_API_KEY,
             "TAVILY_API_KEY": cls.TAVILY_API_KEY,
+            "SENDER_EMAIL": cls.SENDER_EMAIL,
             "RECEIVER_EMAIL": cls.RECEIVER_EMAIL,
         }
         

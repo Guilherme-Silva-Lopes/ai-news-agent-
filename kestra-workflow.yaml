@@ -53,6 +53,7 @@ tasks:
         env:
           GOOGLE_API_KEY: "{{ kv('GOOGLE_API_KEY') }}"
           TAVILY_API_KEY: "{{ kv('TAVILY_API_KEY') }}"
+          SENDER_EMAIL: "{{ kv('GMAIL_CREDENTIALS').user }}"
           RECEIVER_EMAIL: "{{ kv('RECEIVER_EMAIL') }}"
           GMAIL_CLIENT_ID: "{{ kv('GMAIL_CREDENTIALS').client_id }}"
           GMAIL_CLIENT_SECRET: "{{ kv('GMAIL_CREDENTIALS').client_secret }}"
