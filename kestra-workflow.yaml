@@ -18,17 +18,15 @@ tasks:
         url: https://github.com/Guilherme-Silva-Lopes/ai-news-agent-
         branch: main
 
-      - id: install-dependencies
-        type: io.kestra.plugin.scripts.python.Commands
-        description: Install requirements for all tasks
-        containerImage: python:3.11-slim
-        commands:
-          - pip install --no-cache-dir -r requirements.txt
+        branch: main
+
 
       - id: research-news
         type: io.kestra.plugin.scripts.python.Commands
         description: Phase 1 - Research News
         containerImage: python:3.11-slim
+        beforeCommands:
+          - pip install --no-cache-dir -r requirements.txt
         commands:
           - python agent.py --output news_content.txt
         env:
@@ -44,6 +42,8 @@ tasks:
         type: io.kestra.plugin.scripts.python.Commands
         description: Phase 2 - Generate PDF
         containerImage: python:3.11-slim
+        beforeCommands:
+          - pip install --no-cache-dir -r requirements.txt
         commands:
           - python pdf_generator.py --input news_content.txt --output ai_news_report.pdf
         outputFiles:
@@ -53,6 +53,8 @@ tasks:
         type: io.kestra.plugin.scripts.python.Commands
         description: Phase 3 - Send Email
         containerImage: python:3.11-slim
+        beforeCommands:
+          - pip install --no-cache-dir -r requirements.txt
         commands:
           - python email_sender.py --file ai_news_report.pdf
         env:
@@ -67,7 +69,7 @@ errors:
   - id: error-handler
     type: io.kestra.plugin.core.log.Log
     description: Handle execution errors
-    message: "❌ Error in Daily AI News Report workflow: {{ error.message }}"
+    message: "❌ Error in workflow execution: {{ execution.state.current }}"
 
 triggers:
   - id: daily-schedule
