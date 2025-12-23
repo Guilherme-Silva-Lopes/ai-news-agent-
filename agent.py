@@ -209,7 +209,9 @@ if __name__ == "__main__":
         if args.output:
             output_path = Path(args.output)
             output_path.parent.mkdir(parents=True, exist_ok=True)
-            output_path.write_text(content, encoding='utf-8')
+            # Ensure content is always a string before writing
+            content_str = str(content) if not isinstance(content, str) else content
+            output_path.write_text(content_str, encoding='utf-8')
             print(f"📝 Content saved to: {output_path.absolute()}")
         else:
             print(content)
