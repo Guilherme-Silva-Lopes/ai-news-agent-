@@ -77,22 +77,14 @@ class EmailSender:
         access_token = self._get_access_token()
         
         try:
-            # Fetch user info to get the email address
-            headers = {"Authorization": f"Bearer {access_token}"}
-            user_info_response = requests.get("https://www.googleapis.com/oauth2/v2/userinfo", headers=headers)
-            
-            print(f"📡 Google API Response Status: {user_info_response.status_code}")
-            print(f"📡 Google API Response: {user_info_response.text[:200]}")  # First 200 chars only
-            
-            user_info_response.raise_for_status()  # Raise for HTTP errors
-            user_info = user_info_response.json()
-            sender_email = user_info.get("email")
+            # Use sender email from environment variable instead of fetching from API
+            # This avoids needing the userinfo.email scope
+            sender_email = Config.SENDER_EMAIL
             
             if not sender_email:
-                print(f"⚠️ API Response does not contain email. Full response: {user_info}")
-                raise ValueError("Could not retrieve sender email from Google API. Please configure Gmail OAuth2 credentials in Kestra.")
+                raise ValueError("SENDER_EMAIL environment variable not set")
             
-            print(f"✅ Retrieved sender email: {sender_email}")
+            print(f"✅ Using sender email: {sender_email}")
             
             # Create message
             message = self._create_message(pdf_path, sender_email, recipient_email)
