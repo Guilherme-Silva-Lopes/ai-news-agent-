@@ -2,6 +2,7 @@
 AI News Agent using LangChain 1.0 create_agent API.
 """
 from datetime import datetime
+from pathlib import Path
 from langchain.agents import create_agent
 from langchain_google_genai import ChatGoogleGenerativeAI
 from config import Config
