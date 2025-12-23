@@ -48,6 +48,8 @@ tasks:
         type: io.kestra.plugin.scripts.python.Commands
         description: Phase 3 - Send Email with OAuth2
         containerImage: python:3.11-slim
+        inputFiles:
+          ai_news_report.pdf: "{{ outputs['generate-pdf'].outputFiles['ai_news_report.pdf'] }}"
         commands:
           - pip install --no-cache-dir -r requirements.txt
           - python email_sender.py --file ai_news_report.pdf
