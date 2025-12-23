@@ -13,17 +13,18 @@ def create_search_tool():
         TavilySearchResults: Configured search tool for the agent.
     """
     search_tool = TavilySearchResults(
-        max_results=Config.MAX_SEARCH_RESULTS,
+        max_results=10,  # More results for better selection
         search_depth="advanced",
         include_answer=True,
         include_raw_content=False,
         include_images=False,
+        days=1,  # Filter to last 24 hours only
         api_key=Config.TAVILY_API_KEY,
         name="search_web",
         description=(
-            "Search the web for current information about AI and automation news. "
-            "Use this tool to find recent articles, developments, and trends in "
-            "artificial intelligence and automation technology."
+            "Search the web for RECENT AI and automation news from the last 24 hours. "
+            "Use this tool to find the latest articles, developments, and trends in "
+            "artificial intelligence and automation technology. Always prioritize recent news."
         )
     )
     

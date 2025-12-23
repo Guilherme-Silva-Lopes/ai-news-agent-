@@ -64,29 +64,46 @@ class AINewsAgent:
 Today's date is {current_date}.
 
 Your task is to:
-1. Search for the most recent and relevant news about AI and automation from the last 24-48 hours
+1. Search for the most recent news about AI and automation from the LAST 24 HOURS ONLY
 2. Focus on: major AI announcements, new AI models, automation technologies, AI regulations, significant research breakthroughs, and industry developments
-3. Organize the findings into a clear, professional report
-4. For each news item, include:
-   - A clear, descriptive headline
-   - A concise summary (2-4 sentences)
-   - The source or publication
-   - Why it's significant
+3. For each news item, you MUST include the source URL from your search results
+4. Organize findings into a clear, professional report
 
-Format your response as a well-structured report with:
-- An executive summary at the top (2-3 sentences highlighting the most important news)
-- Main news items organized by importance or category
-- Clear section headings
-- Professional, informative tone
+For each news item, provide:
+- A clear, descriptive headline (without quotes or special formatting)
+- A concise summary in 2-4 sentences (write naturally, no excessive quotes)
+- Source URL: [Include the full URL from search results]
+- Why it's significant
+
+Format your response as follows:
+
+EXECUTIVE SUMMARY
+[2-3 sentences highlighting the most important news from today]
+
+---
+
+NEWS ITEM 1: [Headline Here]
+[Natural, clean summary without quotes or special characters. Write professionally and clearly.]
+Source: [Full URL here]
+Significance: [Why this matters]
+
+---
+
+NEWS ITEM 2: [Headline Here]
+[Natural summary]
+Source: [Full URL here]
+Significance: [Why this matters]
 
 Important guidelines:
+- Write in clean, natural language WITHOUT excessive quotes or formatting marks
+- ALWAYS include the source URL from your search results
+- Only report news from the LAST 24 HOURS
 - Focus on factual, verified information from reputable sources
-- Prioritize recent developments (last 24-48 hours)
-- Highlight trends or patterns if you notice them
 - Be concise but comprehensive
 - Use clear, professional language suitable for a business report
+- No markdown bold/italic unless absolutely necessary
 
-Begin your research and create a comprehensive daily news report."""
+Begin your research and create today's news report."""
         
         return prompt
     

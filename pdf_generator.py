@@ -115,6 +115,49 @@ class NewsReportGenerator:
         
         return self.filename
     
+    def _clean_text(self, text: str) -> str:
+        """
+        Clean text by removing excessive quotes and formatting artifacts.
+        
+        Args:
+            text (str): Text to clean.
+            
+        Returns:
+            str: Cleaned text.
+        """
+        import re
+        
+        # Remove excessive double quotes around phrases
+        # But keep quotes that are part of actual quotes
+        text = re.sub(r'""([^"]+)""', r'\1', text)  # Remove double-double quotes
+        text = re.sub(r'"([A-Z][^"]{10,})"', r'\1', text)  # Remove quotes around capitalized phrases
+        
+        return text
+    
+    def _make_urls_clickable(self, text: str) -> str:
+        """
+        Convert URLs in text to clickable HTML links.
+        
+        Args:
+            text (str): Text containing URLs.
+            
+        Returns:
+            str: Text with clickable links.
+        """
+        import re
+        import html
+        
+        # First escape HTML to prevent XML errors
+        text = html.escape(text)
+        
+        # Pattern to match URLs
+        url_pattern = r'(https?://[^\s<>"]+)'
+        
+        # Replace URLs with clickable links
+        text = re.sub(url_pattern, r'<link href="\1" color="blue"><u>\1</u></link>', text)
+        
+        return text
+    
     def _add_content_to_story(self, story, content: str):
         """
         Process the content and add it to the PDF story.
@@ -123,7 +166,8 @@ class NewsReportGenerator:
             story (list): List of flowable objects for the PDF.
             content (str): The content to add.
         """
-        import html
+        # Clean the entire content first
+        content = self._clean_text(content)
         
         # Split content into paragraphs
         paragraphs = content.split('\n\n')
@@ -133,29 +177,29 @@ class NewsReportGenerator:
             if not para:
                 continue
             
-            # Escape HTML entities first to prevent XML parsing errors
-            para_escaped = html.escape(para)
+            # Make URLs clickable (this also escapes HTML)
+            para_processed = self._make_urls_clickable(para)
             
             # Check if it's a heading (starts with # or is all caps and short)
             if para.startswith('#'):
                 # Remove markdown heading symbols
                 heading_text = para.lstrip('#').strip()
-                heading_escaped = html.escape(heading_text)
-                p = Paragraph(f"<b>{heading_escaped}</b>", self.styles['NewsHeading'])
+                heading_processed = self._make_urls_clickable(heading_text)
+                p = Paragraph(f"<b>{heading_processed}</b>", self.styles['NewsHeading'])
                 story.append(p)
             elif para.startswith('**') and para.endswith('**'):
                 # Bold text as heading
                 heading_text = para.strip('*').strip()
-                heading_escaped = html.escape(heading_text)
-                p = Paragraph(f"<b>{heading_escaped}</b>", self.styles['NewsHeading'])
+                heading_processed = self._make_urls_clickable(heading_text)
+                p = Paragraph(f"<b>{heading_processed}</b>", self.styles['NewsHeading'])
                 story.append(p)
             elif len(para) < 100 and para.isupper():
                 # All caps short text as heading
-                p = Paragraph(para_escaped, self.styles['NewsHeading'])
+                p = Paragraph(para_processed, self.styles['NewsHeading'])
                 story.append(p)
             else:
-                # Regular paragraph - just use escaped text
-                p = Paragraph(para_escaped, self.styles['CustomBody'])
+                # Regular paragraph with clickable URLs
+                p = Paragraph(para_processed, self.styles['CustomBody'])
                 story.append(p)
             
             story.append(Spacer(1, 0.1 * inch))
