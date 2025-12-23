@@ -79,11 +79,20 @@ class EmailSender:
         try:
             # Fetch user info to get the email address
             headers = {"Authorization": f"Bearer {access_token}"}
-            user_info = requests.get("https://www.googleapis.com/oauth2/v2/userinfo", headers=headers).json()
+            user_info_response = requests.get("https://www.googleapis.com/oauth2/v2/userinfo", headers=headers)
+            
+            print(f"📡 Google API Response Status: {user_info_response.status_code}")
+            print(f"📡 Google API Response: {user_info_response.text[:200]}")  # First 200 chars only
+            
+            user_info_response.raise_for_status()  # Raise for HTTP errors
+            user_info = user_info_response.json()
             sender_email = user_info.get("email")
             
             if not sender_email:
-                raise ValueError("Could not retrieve sender email from Google API")
+                print(f"⚠️ API Response does not contain email. Full response: {user_info}")
+                raise ValueError("Could not retrieve sender email from Google API. Please configure Gmail OAuth2 credentials in Kestra.")
+            
+            print(f"✅ Retrieved sender email: {sender_email}")
             
             # Create message
             message = self._create_message(pdf_path, sender_email, recipient_email)
@@ -103,6 +112,10 @@ class EmailSender:
             print(f"✅ Email sent successfully to {recipient_email}")
             return True
             
+        except requests.exceptions.HTTPError as e:
+            print(f"❌ HTTP Error from Google API: {e}")
+            print(f"❌ Response: {e.response.text if e.response else 'No response'}")
+            return False
         except Exception as e:
             print(f"❌ Failed to send email: {str(e)}")
             return False
