@@ -172,17 +172,8 @@ Create a comprehensive daily news report following the format specified in your 
                 "messages": [{"role": "user", "content": user_message}]
             })
             
-            # Extract content from response
-            if hasattr(response, 'content'):
-                content = response.content
-            elif isinstance(response, dict) and 'output' in response:
-                content = response['output']
-            elif isinstance(response, dict) and 'messages' in response:
-                content = response['messages'][-1].content if response['messages'] else str(response)
-            elif isinstance(response, list):
-                content = response[-1].content if hasattr(response[-1], 'content') else str(response[-1])
-            else:
-                content = str(response)
+            # Extract content from response - handle various formats including Gemini 2.5 Flash
+            content = self._extract_content_from_response(response)
             
             print("✅ Research completed successfully!")
             return content
@@ -190,6 +181,74 @@ Create a comprehensive daily news report following the format specified in your 
         except Exception as e:
             print(f"❌ Error during research: {str(e)}")
             raise
+    
+    def _extract_content_from_response(self, response) -> str:
+        """
+        Extract text content from various response formats.
+        Handles Gemini 2.5 Flash format: [{'type': 'text', 'text': '...', 'extras': {...}}]
+        """
+        # Direct content attribute
+        if hasattr(response, 'content'):
+            content = response.content
+            # If content is a list/dict, process it
+            if isinstance(content, (list, dict)):
+                return self._extract_text_from_structure(content)
+            return str(content)
+        
+        # Dict with 'output' key
+        if isinstance(response, dict) and 'output' in response:
+            output = response['output']
+            if isinstance(output, (list, dict)):
+                return self._extract_text_from_structure(output)
+            return str(output)
+        
+        # Dict with 'messages' key
+        if isinstance(response, dict) and 'messages' in response:
+            if response['messages']:
+                msg_content = response['messages'][-1].content
+                if isinstance(msg_content, (list, dict)):
+                    return self._extract_text_from_structure(msg_content)
+                return str(msg_content)
+        
+        # List response
+        if isinstance(response, list):
+            return self._extract_text_from_structure(response)
+        
+        # Fallback to string
+        return str(response)
+    
+    def _extract_text_from_structure(self, data) -> str:
+        """
+        Extract text from Gemini 2.5 Flash structure:
+        [{'type': 'text', 'text': '...', 'extras': {...}}]
+        """
+        # Handle list
+        if isinstance(data, list):
+            text_parts = []
+            for item in data:
+                if isinstance(item, dict):
+                    # Gemini 2.5 Flash format
+                    if 'text' in item:
+                        text_parts.append(str(item['text']))
+                    # Other dict formats
+                    elif 'content' in item:
+                        text_parts.append(str(item['content']))
+                elif hasattr(item, 'content'):
+                    text_parts.append(str(item.content))
+                else:
+                    text_parts.append(str(item))
+            
+            return '\n'.join(text_parts) if text_parts else str(data)
+        
+        # Handle dict
+        if isinstance(data, dict):
+            if 'text' in data:
+                return str(data['text'])
+            if 'content' in data:
+                return str(data['content'])
+        
+        # Fallback
+        return str(data)
 
 if __name__ == "__main__":
     import argparse
