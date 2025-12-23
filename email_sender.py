@@ -1,6 +1,7 @@
 """
 Email sender module for the AI News Agent using Gmail OAuth2.
 """
+import os
 import smtplib
 import base64
 import json
