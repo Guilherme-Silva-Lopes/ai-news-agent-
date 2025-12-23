@@ -1,7 +1,7 @@
 """
 Custom tools for the AI News Agent.
 """
-from langchain_community.tools.tavily_search import TavilySearchResults
+from langchain_tavily import TavilySearchResults
 from config import Config
 
 
