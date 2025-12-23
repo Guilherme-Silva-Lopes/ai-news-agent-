@@ -29,6 +29,9 @@ tasks:
           GOOGLE_API_KEY: "{{ kv('GOOGLE_API_KEY') }}"
           TAVILY_API_KEY: "{{ kv('TAVILY_API_KEY') }}"
           RECEIVER_EMAIL: "{{ kv('RECEIVER_EMAIL') }}"
+          GMAIL_CLIENT_ID: "{{ kv('GMAIL_CREDENTIALS').client_id }}"
+          GMAIL_CLIENT_SECRET: "{{ kv('GMAIL_CREDENTIALS').client_secret }}"
+          GMAIL_REFRESH_TOKEN: "{{ kv('GMAIL_CREDENTIALS').refresh_token }}"
 
       - id: generate-pdf
         type: io.kestra.plugin.scripts.python.Commands
