@@ -77,14 +77,24 @@ class EmailSender:
         access_token = self._get_access_token()
         
         try:
-            # Use sender email from environment variable instead of fetching from API
-            # This avoids needing the userinfo.email scope
-            sender_email = Config.SENDER_EMAIL
+            # Fetch user info to get the email address from OAuth2 token
+            headers = {"Authorization": f"Bearer {access_token}"}
+            user_info_response = requests.get("https://www.googleapis.com/oauth2/v2/userinfo", headers=headers)
             
-            if not sender_email:
-                raise ValueError("SENDER_EMAIL environment variable not set")
+            print(f"📡 Google API Response Status: {user_info_response.status_code}")
             
-            print(f"✅ Using sender email: {sender_email}")
+            if user_info_response.status_code == 200:
+                user_info = user_info_response.json()
+                sender_email = user_info.get("email")
+                
+                if not sender_email:
+                    print(f"⚠️ User info response: {user_info}")
+                    raise ValueError("Could not retrieve sender email from Google API")
+                
+                print(f"✅ Retrieved sender email: {sender_email}")
+            else:
+                print(f"⚠️ Failed to fetch user info: {user_info_response.text}")
+                raise ValueError(f"Google API returned status {user_info_response.status_code}")
             
             # Create message
             message = self._create_message(pdf_path, sender_email, recipient_email)

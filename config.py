@@ -23,7 +23,6 @@ class Config:
     GMAIL_REFRESH_TOKEN = os.getenv("GMAIL_REFRESH_TOKEN")
     
     # Email Addresses
-    SENDER_EMAIL = os.getenv("SENDER_EMAIL")
     RECEIVER_EMAIL = os.getenv("RECEIVER_EMAIL")
     
     # Agent Configuration
