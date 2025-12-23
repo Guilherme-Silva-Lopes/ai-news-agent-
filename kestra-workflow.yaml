@@ -25,15 +25,13 @@ tasks:
         type: io.kestra.plugin.scripts.python.Commands
         description: Phase 1 - Research News
         containerImage: python:3.11-slim
-        beforeCommands:
-          - pip install --no-cache-dir -r requirements.txt
         commands:
+          - pip install --no-cache-dir -r requirements.txt
           - python agent.py --output news_content.txt
         env:
           GOOGLE_API_KEY: "{{ kv('GOOGLE_API_KEY') }}"
           TAVILY_API_KEY: "{{ kv('TAVILY_API_KEY') }}"
           RECEIVER_EMAIL: "{{ kv('RECEIVER_EMAIL') }}"
-          # Dummy values for config validation (only needed for Email phase)
           GMAIL_CLIENT_ID: "dummy"
           GMAIL_CLIENT_SECRET: "dummy"
           GMAIL_REFRESH_TOKEN: "dummy"
@@ -42,9 +40,8 @@ tasks:
         type: io.kestra.plugin.scripts.python.Commands
         description: Phase 2 - Generate PDF
         containerImage: python:3.11-slim
-        beforeCommands:
-          - pip install --no-cache-dir -r requirements.txt
         commands:
+          - pip install --no-cache-dir -r requirements.txt
           - python pdf_generator.py --input news_content.txt --output ai_news_report.pdf
         outputFiles:
           - ai_news_report.pdf
@@ -53,9 +50,8 @@ tasks:
         type: io.kestra.plugin.scripts.python.Commands
         description: Phase 3 - Send Email
         containerImage: python:3.11-slim
-        beforeCommands:
-          - pip install --no-cache-dir -r requirements.txt
         commands:
+          - pip install --no-cache-dir -r requirements.txt
           - python email_sender.py --file ai_news_report.pdf
         env:
           GOOGLE_API_KEY: "{{ kv('GOOGLE_API_KEY') }}"
@@ -69,7 +65,7 @@ errors:
   - id: error-handler
     type: io.kestra.plugin.core.log.Log
     description: Handle execution errors
-    message: "❌ Error in workflow execution: {{ execution.state.current }}"
+    message: "❌ Error in workflow execution. Execution ID: {{ execution.id }}"
 
 triggers:
   - id: daily-schedule
