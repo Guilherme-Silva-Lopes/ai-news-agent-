@@ -21,7 +21,6 @@ tasks:
       - id: install-dependencies
         type: io.kestra.plugin.scripts.python.Commands
         description: Install requirements for all tasks
-        warningOnStdErr: false
         containerImage: python:3.11-slim
         commands:
           - pip install --no-cache-dir -r requirements.txt
@@ -29,7 +28,6 @@ tasks:
       - id: research-news
         type: io.kestra.plugin.scripts.python.Commands
         description: Phase 1 - Research News
-        warningOnStdErr: false
         containerImage: python:3.11-slim
         commands:
           - python agent.py --output news_content.txt
@@ -45,15 +43,15 @@ tasks:
       - id: generate-pdf
         type: io.kestra.plugin.scripts.python.Commands
         description: Phase 2 - Generate PDF
-        warningOnStdErr: false
         containerImage: python:3.11-slim
         commands:
           - python pdf_generator.py --input news_content.txt --output ai_news_report.pdf
+        outputFiles:
+          - ai_news_report.pdf
 
       - id: send-email
         type: io.kestra.plugin.scripts.python.Commands
         description: Phase 3 - Send Email
-        warningOnStdErr: false
         containerImage: python:3.11-slim
         commands:
           - python email_sender.py --file ai_news_report.pdf
@@ -64,12 +62,6 @@ tasks:
           GMAIL_CLIENT_ID: "{{ kv('GMAIL_CREDENTIALS').client_id }}"
           GMAIL_CLIENT_SECRET: "{{ kv('GMAIL_CREDENTIALS').client_secret }}"
           GMAIL_REFRESH_TOKEN: "{{ kv('GMAIL_CREDENTIALS').refresh_token }}"
-          
-      - id: archive-report
-        type: io.kestra.plugin.core.storage.LocalFiles
-        description: Archive generated PDF to Kestra storage
-        inputs:
-          - "ai_news_report.pdf"
 
 errors:
   - id: error-handler

@@ -26,7 +26,7 @@ class Config:
     RECEIVER_EMAIL = os.getenv("RECEIVER_EMAIL")
     
     # Agent Configuration
-    MODEL_NAME = "gemini-1.5-flash"
+    MODEL_NAME = "gemini-3-flash-preview"
     MAX_SEARCH_RESULTS = 10
     
     # Report Configuration
