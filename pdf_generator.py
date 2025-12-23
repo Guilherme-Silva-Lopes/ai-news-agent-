@@ -134,6 +134,27 @@ class NewsReportGenerator:
         
         return text
     
+    def _clean_url(self, url: str) -> str:
+        """
+        Clean URL by removing tracking parameters and fixing encoding.
+        
+        Args:
+            url (str): URL to clean.
+            
+        Returns:
+            str: Cleaned URL.
+        """
+        import re
+        
+        # Remove tracking parameters
+        url = re.sub(r'[?&](utm_[^&]*|ref=[^&]*|fbclid=[^&]*)', '', url)
+        # Fix HTML encoding
+        url = url.replace('&amp;', '&')
+        # Remove trailing separators
+        url = url.rstrip('?&')
+        
+        return url.strip()
+    
     def _make_urls_clickable(self, text: str) -> str:
         """
         Convert URLs in text to clickable HTML links.
@@ -153,8 +174,14 @@ class NewsReportGenerator:
         # Pattern to match URLs
         url_pattern = r'(https?://[^\s<>"]+)'
         
-        # Replace URLs with clickable links
-        text = re.sub(url_pattern, r'<link href="\1" color="blue"><u>\1</u></link>', text)
+        # Function to clean and format each URL
+        def make_link(match):
+            url = match.group(1)
+            cleaned_url = self._clean_url(url)
+            return f'<link href="{cleaned_url}" color="blue"><u>{cleaned_url}</u></link>'
+        
+        # Replace URLs with cleaned clickable links
+        text = re.sub(url_pattern, make_link, text)
         
         return text
     

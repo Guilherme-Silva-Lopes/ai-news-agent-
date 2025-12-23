@@ -107,50 +107,88 @@ Begin your research and create today's news report."""
         
         return prompt
     
+    def _generate_search_queries(self) -> list:
+        """
+        Generate multiple targeted search queries using current date.
+        
+        Returns:
+            list: List of search query strings.
+        """
+        current_date = datetime.now()
+        month_year = current_date.strftime("%B %Y")  # e.g., "December 2025"
+        date_full = current_date.strftime("%B %d, %Y")  # e.g., "December 23, 2025"
+        
+        queries = [
+            f"AI model releases {month_year}",
+            f"artificial intelligence news {date_full}",
+            f"AI breakthroughs this week {month_year}",
+            f"OpenAI Google Anthropic news today",
+            f"AI automation industry news {month_year}",
+            f"AI regulation updates {month_year}",
+            f"latest AI research {month_year}",
+        ]
+        
+        return queries
+    
     def research_and_generate_report(self) -> str:
         """
-        Execute the agent to research and generate a news report.
+        Execute deep research across multiple search queries to generate comprehensive report.
         
         Returns:
             str: The generated news report content.
         """
-        print("🔍 Starting AI news research...")
+        print("🔍 Starting deep AI news research...")
         
-        # Fixed user message for daily news research
-        user_message = (
-            "Research today's most important AI and automation news and create a "
-            "comprehensive daily report following the format specified in your instructions."
-        )
+        # Get current date for validation
+        current_date = datetime.now()
+        print(f"📅 Current date: {current_date.strftime('%B %d, %Y')}")
+        
+        # Generate search queries dynamically
+        search_queries = self._generate_search_queries()
+        print(f"🎯 Performing {len(search_queries)} targeted searches...")
+        
+        # Build comprehensive user message with all search queries
+        user_message = f"""Today is {current_date.strftime('%B %d, %Y')}.
+
+Perform comprehensive research on AI and automation news from the LAST 24 HOURS ONLY.
+
+Execute these targeted searches to ensure full coverage:
+{chr(10).join([f'{i+1}. {q}' for i, q in enumerate(search_queries)])}
+
+CRITICAL REQUIREMENTS:
+- Current date is {current_date.strftime('%B %d, %Y')}
+- ONLY include news from the last 24 hours
+- REJECT any news from {current_date.year - 1} or earlier
+- Each news item MUST include the source URL
+- Perform ALL searches above for comprehensive coverage
+- Deduplicate similar news items
+- Focus on verified, factual information
+
+Create a comprehensive daily news report following the format specified in your system prompt."""
         
         try:
-            # Invoke the agent
-            result = self.agent.invoke({
-                "messages": [
-                    {"role": "user", "content": user_message}
-                ]
+            # Execute agent with comprehensive research
+            response = self.agent.invoke({
+                "messages": [{"role": "user", "content": user_message}]
             })
             
-            # Extract the content from the result
-            if isinstance(result, dict) and "messages" in result:
-                # Get the last message (agent's response)
-                last_message = result["messages"][-1]
-                content = last_message.content
-                
-                # Handle case where content is a list
-                if isinstance(content, list):
-                    # Join list items or extract text from content blocks
-                    content = "\n".join(
-                        item.get("text", str(item)) if isinstance(item, dict) else str(item)
-                        for item in content
-                    )
+            # Extract content from response
+            if hasattr(response, 'content'):
+                content = response.content
+            elif isinstance(response, dict) and 'output' in response:
+                content = response['output']
+            elif isinstance(response, dict) and 'messages' in response:
+                content = response['messages'][-1].content if response['messages'] else str(response)
+            elif isinstance(response, list):
+                content = response[-1].content if hasattr(response[-1], 'content') else str(response[-1])
             else:
-                content = str(result)
+                content = str(response)
             
-            print("✅ News research completed successfully!")
+            print("✅ Research completed successfully!")
             return content
             
         except Exception as e:
-            print(f"❌ Error during news research: {str(e)}")
+            print(f"❌ Error during research: {str(e)}")
             raise
 
 if __name__ == "__main__":
