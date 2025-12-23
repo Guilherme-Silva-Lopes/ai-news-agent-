@@ -125,3 +125,30 @@ Begin your research and create a comprehensive daily news report."""
         except Exception as e:
             print(f"❌ Error during news research: {str(e)}")
             raise
+
+if __name__ == "__main__":
+    import argparse
+    import sys
+    
+    parser = argparse.ArgumentParser(description="AI News Agent - Research Phase")
+    parser.add_argument("--output", help="Path to save the generated news content")
+    args = parser.parse_args()
+    
+    try:
+        # Validate config first
+        Config.validate()
+        
+        agent = AINewsAgent()
+        content = agent.research_and_generate_report()
+        
+        if args.output:
+            output_path = Path(args.output)
+            output_path.parent.mkdir(parents=True, exist_ok=True)
+            output_path.write_text(content, encoding='utf-8')
+            print(f"📝 Content saved to: {output_path.absolute()}")
+        else:
+            print(content)
+            
+    except Exception as e:
+        print(f"❌ Error: {str(e)}")
+        sys.exit(1)

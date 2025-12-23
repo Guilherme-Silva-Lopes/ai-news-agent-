@@ -100,114 +100,57 @@ Access your Kestra instance and add the following keys to the KV Store:
 
 #### Google API Key
 ```bash
-kestra kv put GOOGLE_API_KEY "your_google_api_key_here" --namespace ai.news
+kestra kv put GOOGLE_API_KEY "your_google_api_key_here" --namespace company.team
 ```
 
 #### Tavily API Key
 ```bash
-kestra kv put TAVILY_API_KEY "your_tavily_api_key_here" --namespace ai.news
+kestra kv put TAVILY_API_KEY "your_tavily_api_key_here" --namespace company.team
 ```
 
-#### Gmail Credentials
+#### Receiver Email
 ```bash
-kestra kv put GMAIL_CREDENTIALS '{"user": "your_email@gmail.com", "password": "your_app_password", "recipient": "recipient@example.com"}' --namespace ai.news
+kestra kv put RECEIVER_EMAIL "recipient@example.com" --namespace company.team
 ```
 
-**Alternative: Using Kestra UI**
+#### Gmail OAuth2 Credentials
+Store your OAuth2 credentials in a JSON object under `GMAIL_CREDENTIALS`:
 
-1. Navigate to KV Store in Kestra UI
-2. Add each credential:
-   - Key: `GOOGLE_API_KEY`, Value: `your_google_api_key_here`
-   - Key: `TAVILY_API_KEY`, Value: `your_tavily_api_key_here`
-   - Key: `GMAIL_CREDENTIALS`, Value (as JSON):
-     ```json
-     {
-       "user": "your_email@gmail.com",
-       "password": "your_app_password",
-       "recipient": "recipient@example.com"
-     }
-     ```
+```bash
+kestra kv put GMAIL_CREDENTIALS '{"client_id": "your_client_id", "client_secret": "your_client_secret", "refresh_token": "your_refresh_token"}' --namespace company.team
+```
 
 ### 2. Deploy the Workflow
 
-1. Push your code to GitHub:
-   ```bash
-   git add .
-   git commit -m "Add AI News Agent"
-   git push origin main
-   ```
+1. The workflow will pull code automatically from GitHub:
+   `https://github.com/Guilherme-Silva-Lopes/ai-news-agent-`
 
 2. In Kestra UI:
-   - Navigate to Flows
-   - Click "Create Flow"
-   - Copy the contents of `kestra-workflow.yaml`
-   - Paste and save
-
-3. The workflow will automatically run Monday-Friday at 7:00 AM (Brazil time)
-
-### 3. Manual Execution
-
-To test immediately, click "Execute" on the flow in Kestra UI.
+   - Create Flow using the provided `kestra-workflow.yaml`
+   - It runs automatically Mon-Fri at 7:00 AM
 
 ## 📁 Project Structure
 
 ```
 LAngchain Kestra Daily News Agent/
-├── agent.py              # Main AI agent using LangChain 1.0
-├── tools.py              # Web search tool configuration
-├── pdf_generator.py      # PDF report generation
-├── email_sender.py       # Email delivery module
-├── config.py             # Configuration management
-├── main.py               # Entry point orchestrator
-├── requirements.txt      # Python dependencies
-├── kestra-workflow.yaml  # Kestra workflow definition
-├── .env.example          # Environment variables template
-├── .gitignore           # Git ignore rules
-└── README.md            # This file
+├── agent.py              # Research agent (CLI: --output)
+├── pdf_generator.py      # PDF generator (CLI: --input --output)
+├── email_sender.py       # OAuth2 Email sender (CLI: --file)
+├── tools.py              # Search tool config
+├── config.py             # Config & Validation
+├── main.py               # Legacy orchestrator
+├── requirements.txt      # Dependencies
+└── kestra-workflow.yaml  # Modular workflow definition
 ```
 
-## 🛠️ Configuration
+## 🔍 How It Works (Modular)
 
-### Schedule Customization
+1. **Clone**: Kestra clones the repository
+2. **Setup**: Installs dependencies
+3. **Phase 1**: `agent.py` researches and saves to `news_content.txt`
+4. **Phase 2**: `pdf_generator.py` reads text and creates `ai_news_report.pdf`
+5. **Phase 3**: `email_sender.py` uses OAuth2 to send the PDF
 
-Edit `kestra-workflow.yaml` to change the schedule:
-
-```yaml
-triggers:
-  - id: daily-schedule
-    cron: "0 7 * * 1-5"  # Minute Hour Day Month DayOfWeek
-    timezone: America/Sao_Paulo
-```
-
-### Model Selection
-
-Change the Gemini model in `config.py`:
-
-```python
-MODEL_NAME = "gemini-1.5-flash"  # or "gemini-1.5-pro"
-```
-
-### Search Results Limit
-
-Adjust in `config.py`:
-
-```python
-MAX_SEARCH_RESULTS = 10  # Number of search results to fetch
-```
-
-## 📧 Email Format
-
-The agent sends HTML-formatted emails with:
-- Professional styling
-- Daily date header
-- PDF attachment with comprehensive news report
-
-## 🔍 How It Works
-
-1. **Research Phase**: Agent searches for recent AI/automation news using Tavily
-2. **Analysis Phase**: Gemini processes and structures the findings
-3. **Generation Phase**: Creates a professional PDF report
-4. **Delivery Phase**: Sends the report via Gmail
 
 ## 🐛 Troubleshooting
 

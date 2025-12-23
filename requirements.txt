@@ -22,3 +22,7 @@ python-dotenv>=1.0.0
 # Optional: Logging and utilities
 pydantic>=2.0.0
 typing-extensions>=4.0.0
+
+# HTTP Requests (for OAuth2)
+requests>=2.31.0
+google-auth>=2.0.0

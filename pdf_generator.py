@@ -156,3 +156,31 @@ class NewsReportGenerator:
                 story.append(p)
             
             story.append(Spacer(1, 0.1 * inch))
+
+if __name__ == "__main__":
+    import argparse
+    import sys
+    from pathlib import Path
+    
+    parser = argparse.ArgumentParser(description="AI News Agent - PDF Generation")
+    parser.add_argument("--input", required=True, help="Path to the input text file with news content")
+    parser.add_argument("--output", help="Path to save the generated PDF")
+    args = parser.parse_args()
+    
+    try:
+        # Read content
+        input_path = Path(args.input)
+        if not input_path.exists():
+            raise FileNotFoundError(f"Input file not found: {input_path}")
+            
+        content = input_path.read_text(encoding='utf-8')
+        
+        # Generate PDF
+        generator = NewsReportGenerator(filename=args.output)
+        pdf_path = generator.generate_report(content, args.output)
+        
+        print(f"✅ PDF generated successfully: {pdf_path}")
+        
+    except Exception as e:
+        print(f"❌ Error: {str(e)}")
+        sys.exit(1)
