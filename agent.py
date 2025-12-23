@@ -116,7 +116,16 @@ Begin your research and create a comprehensive daily news report."""
             # Extract the content from the result
             if isinstance(result, dict) and "messages" in result:
                 # Get the last message (agent's response)
-                content = result["messages"][-1].content
+                last_message = result["messages"][-1]
+                content = last_message.content
+                
+                # Handle case where content is a list
+                if isinstance(content, list):
+                    # Join list items or extract text from content blocks
+                    content = "\n".join(
+                        item.get("text", str(item)) if isinstance(item, dict) else str(item)
+                        for item in content
+                    )
             else:
                 content = str(result)
             
