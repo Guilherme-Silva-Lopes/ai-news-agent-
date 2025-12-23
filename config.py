@@ -22,7 +22,8 @@ class Config:
     GMAIL_CLIENT_SECRET = os.getenv("GMAIL_CLIENT_SECRET")
     GMAIL_REFRESH_TOKEN = os.getenv("GMAIL_REFRESH_TOKEN")
     
-    # Receiver Email (can be overridden by environment)
+    # Email Addresses
+    SENDER_EMAIL = os.getenv("SENDER_EMAIL")
     RECEIVER_EMAIL = os.getenv("RECEIVER_EMAIL")
     
     # Agent Configuration
