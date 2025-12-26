@@ -3,7 +3,7 @@ namespace: company.team
 
 description: |
   Daily AI and Automation News Report Agent
-  Executes Monday-Friday at 7:00 AM to research AI news, generate PDF report, and send via email
+  Executes Monday, Wednesday, and Friday at 7:00 AM to research AI news, generate PDF report, and send via Discord
 
 labels:
   project: ai-news-agent
@@ -61,7 +61,7 @@ errors:
 triggers:
   - id: daily-schedule
     type: io.kestra.plugin.core.trigger.Schedule
-    description: Run Monday to Friday at 7:00 AM
-    cron: "0 7 * * 1-5"
+    description: Run Monday, Wednesday, and Friday at 7:00 AM
+    cron: "0 7 * * 1,3,5"
     timezone: America/Sao_Paulo
     lateMaximumDelay: PT1H
